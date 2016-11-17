@@ -1,6 +1,6 @@
-define typesdb_config(
-  $typeDB = $title,
+define collectd::typesdb_config(
   $config_file,
+  $typedb = $title,
 ) {
   validate_absolute_path($config_file)
 
@@ -9,16 +9,16 @@ define typesdb_config(
   }
 
   #Make sure the TypesDB directive is present first
-  ensure_resource('augeas', 'TypesDB entry', {
-      changes => "set directive[last()+1] TypesDB",
+  ensure_resource('augeas', 'TypesDB directive', {
+      changes => 'set directive[last()+1] TypesDB',
       onlyif  => "get directive[. = 'TypesDB'] != TypesDB",
     }
   )
-  
-  augeas { $typeDB:
-    changes => "set directive[. = \'TypesDB\']/arg[last()+1] '\"${typeDB}\"'",
-    onlyif  => "get directive/value[. = \'TypesDB\'] != '\"${typeDB}\"'",
+
+  augeas { $typedb:
+    changes => "set directive[. = \'TypesDB\']/arg[last()+1] '\"${typedb}\"'",
+    onlyif  => "get directive/value[. = \'TypesDB\'] != '\"${typedb}\"'",
   }
 
-  Augeas['TypesDB entry'] -> Augeas[$typeDB]
+  Augeas['TypesDB directive'] -> Augeas[$typedb]
 }

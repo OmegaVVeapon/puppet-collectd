@@ -37,8 +37,8 @@ class collectd::config (
 
   if $purge_config {
     $_conf_content = template('collectd/collectd.conf.erb')
-    typesdb_config {$typesdb:
-      config_file => $config_file
+    ::collectd::typesdb_config {$typesdb:
+      config_file => $config_file,
     }
   }
   else{
