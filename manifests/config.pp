@@ -37,7 +37,7 @@ class collectd::config (
 
   if $purge_config {
     $_conf_content = template('collectd/collectd.conf.erb')
-    ::collectd::typesdb_config {$typesdb:
+    ::collectd::typesdbconfig {$typesdb:
       config_file => $config_file,
     }
   }
@@ -75,6 +75,7 @@ class collectd::config (
     recurse => $recurse,
   }
 
-  File['collectd.d'] -> Typesdb_config <| |> ->  Concat <| |>
-
+  File['collectd.d'] -> ::Collectd::Typesdbconfig <| |> ->  Concat <| |>
+  File['collectd.d'] -> Concat <| |>
+  ::Collectd::Typesdbconfig <| |> ->  Concat <| |>
 }

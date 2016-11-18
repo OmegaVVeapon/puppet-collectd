@@ -23,7 +23,7 @@ describe 'collectd class' do
   end
 
   context 'install memory plugin' do
-    it 'works idemptontently' do
+    it 'works idempotently' do
       pp = <<-EOS
       class { '::collectd': }
 
@@ -33,6 +33,29 @@ describe 'collectd class' do
       # Run it twice and test for idempotency
       apply_manifest(pp, catch_failures: true)
       apply_manifest(pp, catch_changes: true)
+    end
+  end
+
+  context 'add TypesDB to collectd.conf' do
+    it 'works idempotently' do
+      pp = <<-EOS
+      class { '::collectd':
+        purge_config => true,
+        typesdb => ["/path/to/types.db"],
+      }
+      EOS
+
+      # Run it twice and test for idempotency
+      apply_manifest(pp, catch_failures: true)
+      apply_manifest(pp, catch_changes: true)
+    end
+    
+    describe file('/etc/collectd.conf') do
+      its(:content) { should match (/^TypesDB "\/path\/to\/types.db"/) }
+    end
+
+    describe service('collectd') do
+      it { is_expected.to be_running }
     end
   end
 end

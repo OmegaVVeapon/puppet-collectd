@@ -87,7 +87,18 @@ describe 'collectd', type: :class do
               typesdb: ['/path/to/types.db']
             }
           end
-          it { is_expected.to contain_file('collectd.conf').with_content(%r{^TypesDB "/path/to/types.db"}) }
+
+          it { is_expected.to contain_augeas('TypesDB directive').with(
+            :changes => 'set directive[last()+1] TypesDB',
+            :onlyif  => "get directive[. = 'TypesDB'] != TypesDB"
+            )
+          }
+
+          it { is_expected.to contain_augeas('/path/to/types.db').with(
+            :changes => "set directive[. = \'TypesDB\']/arg[last()+1] '\"/path/to/types.db\"'",
+            :onlyif  => "get directive/value[. = \'TypesDB\'] != '\"/path/to/types.db\"'",
+            )
+          }
         end
 
         context 'with write_queue_limit_low => 100' do
